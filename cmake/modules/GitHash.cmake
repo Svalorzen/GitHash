@@ -92,6 +92,7 @@ function(UpdateGitHash)
 
         # Finally output our new library cpp file.
         file(WRITE ${outputFile} "${outputString}")
+        message(STATUS "Compiling branch ${GIT_BRANCH}, commit ${GIT_SHA1}, dirty is ${GIT_DIRTY}")
     endif ()
 endfunction()
 
