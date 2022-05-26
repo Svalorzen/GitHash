@@ -1,3 +1,10 @@
+###################################
+###### CUSTOMIZATION POINTS #######
+###################################
+
+# If you change the output file, remember to modify the GitHash.hpp header file
+# in sync with it!
+
 # Commands to read each needed variable
 set(variablesToRead "GIT_BRANCH;GIT_SHA1;GIT_SHORTSHA1;GIT_DIRTY")
 set(CMD_GIT_BRANCH      git branch --show-current)
@@ -21,8 +28,12 @@ function(genCppContents outputString)
     )
 endfunction()
 
-# Needed for setup
-set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}") # Don't ask why this works.
+###################################
+### END OF CUSTOMIZATION POINTS ###
+###################################
+
+# Needed for setup for older CMake versions (reads this file's path).
+set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}")
 
 # When calling again, we can't get BINARY_DIR directly, so we get it as input.
 if (NOT DEFINED outputDir)
@@ -58,7 +69,7 @@ function(UpdateGitHash)
     endforeach(c)
 
     # GIT_DIRTY post-processing
-    if( ${GIT_DIRTY} MATCHES ".*dirty" )
+    if(${GIT_DIRTY} MATCHES ".*dirty")
         set(GIT_DIRTY "true")
     else()
         set(GIT_DIRTY "false")
