@@ -12,13 +12,13 @@ set(cacheFile "${outputDir}/cache.txt")
 function(genCppContents outputString)
     set(${outputString}
         "namespace GitHash {
-           extern const char * branch;
-           extern const char * sha1;
-           extern const char * shortSha1;
+           extern const char * const branch;
+           extern const char * const sha1;
+           extern const char * const shortSha1;
            extern const bool dirty;
-           const char * branch = \"${GIT_BRANCH}\";
-           const char * sha1 = \"${GIT_SHA1}\";
-           const char * shortSha1 = \"${GIT_SHORTSHA1}\";
+           const char * const branch = \"${GIT_BRANCH}\";
+           const char * const sha1 = \"${GIT_SHA1}\";
+           const char * const shortSha1 = \"${GIT_SHORTSHA1}\";
            const bool dirty = ${GIT_DIRTY};
         }" PARENT_SCOPE
     )
