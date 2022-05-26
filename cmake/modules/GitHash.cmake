@@ -1,12 +1,9 @@
-# Needed for setup
-set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}") # Don't ask why this works.
-
-# When calling again, we can't get BINARY_DIR directly, so we get it as input.
-if (NOT DEFINED outputDir)
-    set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
-endif ()
-set(outputFile "${outputDir}/GitHash.cpp")
-set(cacheFile "${outputDir}/cache.txt")
+# Commands to read each needed variable
+set(variablesToRead "GIT_BRANCH;GIT_SHA1;GIT_SHORTSHA1;GIT_DIRTY")
+set(CMD_GIT_BRANCH      git branch --show-current)
+set(CMD_GIT_SHA1        git log -1 --format=%H)
+set(CMD_GIT_SHORTSHA1   git log -1 --format=%h)
+set(CMD_GIT_DIRTY       git describe --always --dirty) # we post-process this one
 
 # Generator of the .cpp of the githash library
 function(genCppContents outputString)
@@ -23,6 +20,16 @@ function(genCppContents outputString)
         }" PARENT_SCOPE
     )
 endfunction()
+
+# Needed for setup
+set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}") # Don't ask why this works.
+
+# When calling again, we can't get BINARY_DIR directly, so we get it as input.
+if (NOT DEFINED outputDir)
+    set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
+endif ()
+set(outputFile "${outputDir}/GitHash.cpp")
+set(cacheFile "${outputDir}/cache.txt")
 
 # Reads cache file to a variable
 function(ReadGitSha1Cache sha1)
@@ -41,19 +48,16 @@ function(UpdateGitHash)
         file(MAKE_DIRECTORY ${outputDir})
     endif ()
 
-    # Get the current commit hash (long)
-    execute_process(
-        COMMAND git log -1 --format=%H
-        WORKING_DIRECTORY ${outputDir}
-        OUTPUT_VARIABLE GIT_SHA1
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # Automatically set all variables.
+    foreach(c ${variablesToRead})
+        execute_process(
+            COMMAND ${CMD_${c}}
+            WORKING_DIRECTORY "${outputDir}"
+            OUTPUT_VARIABLE ${c}
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    endforeach(c)
 
-    # Get whether we're dirty
-    execute_process(
-        COMMAND git describe --always --dirty
-        WORKING_DIRECTORY ${outputDir}
-        OUTPUT_VARIABLE GIT_DIRTY
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # GIT_DIRTY post-processing
     if( ${GIT_DIRTY} MATCHES ".*dirty" )
         set(GIT_DIRTY "true")
     else()
@@ -72,21 +76,6 @@ function(UpdateGitHash)
         # Set the cache so we can skip rebuilding if nothing changed.
         file(WRITE ${cacheFile} "${GIT_SHA1}-${GIT_DIRTY}")
 
-        # Compute our other needed info.
-        # Get the current working branch
-        execute_process(
-            COMMAND git branch --show-current
-            WORKING_DIRECTORY ${outputDir}
-            OUTPUT_VARIABLE GIT_BRANCH
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-        # Get the current commit hash (short)
-        execute_process(
-            COMMAND git log -1 --format=%h
-            WORKING_DIRECTORY ${outputDir}
-            OUTPUT_VARIABLE GIT_SHORTSHA1
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-
         # Get the CPP file contents with all variables correctly embedded.
         genCppContents(outputString)
 
@@ -98,11 +87,6 @@ endfunction()
 
 # This needs to be called at startup.
 function(SetupGitHash)
-    # Check that the user has the header, otherwise there's no point.
-    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/include/GitHash.hpp")
-        message( FATAL_ERROR "I'm computing the current git hash, but you won't be able to use it because you don't have the GitHash.hpp header file in the 'include/' folder." )
-    endif ()
-
     # Run this script when building
     add_custom_target(CheckGitHash COMMAND ${CMAKE_COMMAND}
         -DRUN_UPDATE_GIT_HASH=1
@@ -113,7 +97,6 @@ function(SetupGitHash)
 
     # Create library for user
     add_library(githash ${outputFile})
-    # target_include_directories(githash PUBLIC ${PROJECT_BINARY_DIR}/githash) FIXME: rm?
     add_dependencies(githash CheckGitHash)
 
     set(GITHASH_LIBRARIES githash CACHE STRING "name of githash library")
