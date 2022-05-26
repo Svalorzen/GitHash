@@ -28,6 +28,11 @@ function(genCppContents outputString)
     )
 endfunction()
 
+# Cache format (which, if changed, triggers a regeneration of the .cpp)
+function(genCache outputString)
+    set(${outputString} "${GIT_SHA1}-${GIT_DIRTY}" PARENT_SCOPE)
+endfunction()
+
 ###################################
 ### END OF CUSTOMIZATION POINTS ###
 ###################################
@@ -75,17 +80,20 @@ function(UpdateGitHash)
         set(GIT_DIRTY "false")
     endif()
 
-    # Try to read the cache
-    ReadGitSha1Cache(sha1Cache)
-    if (NOT DEFINED sha1Cache)
-        set(sha1Cache "none")
+    # Generate new contents for the cache.
+    genCache(newSha1Cache)
+
+    # Try to read old cache
+    ReadGitSha1Cache(oldSha1Cache)
+    if (NOT DEFINED oldSha1Cache)
+        set(oldSha1Cache "none")
     endif ()
 
     # Only update the GitHash.cpp if the hash has changed. This will
     # prevent us from rebuilding the project more than we need to.
-    if (NOT "${GIT_SHA1}-${GIT_DIRTY}" STREQUAL ${sha1Cache} OR NOT EXISTS ${outputFile})
+    if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${outputFile})
         # Set the cache so we can skip rebuilding if nothing changed.
-        file(WRITE ${cacheFile} "${GIT_SHA1}-${GIT_DIRTY}")
+        file(WRITE ${cacheFile} ${newSha1Cache})
 
         # Get the CPP file contents with all variables correctly embedded.
         genCppContents(outputString)

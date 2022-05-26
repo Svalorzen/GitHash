@@ -5,6 +5,13 @@ This module allows you to obtain the current branch, sha1, short sha1 and dirty
 flag directly within C++. It creates a static library called `GitHash` behind
 the scenes which contains these values as symbols you can use.
 
+It additionally creates a cache of the last generated hash (and whether it was
+dirty) so it avoids recompilation as long as the current hash is equal to the
+last compiled one.
+
+Setup
+-----
+
 To use GitHash in your project, you need to follow these steps:
 - Copy the file `GitHash.cmake` in your project's `cmake/module` folder.
 - Copy the file `GitHash.hpp` to your project's include directory.
@@ -30,6 +37,8 @@ the script to specify your ideal output directory.
 Customization
 -------------
 
+### Additional Fields ###
+
 It is possible to add additional fields to read (for example, to read tags). For
 each new field, you need to:
 - Modify the `GitHash.hpp` header file to expose the new field you want.
@@ -40,6 +49,14 @@ each new field, you need to:
   - Add a new `CMD_` variable containing the appropriate command to run
   - Add a new `extern` field (both declaration and definition) inside the string
     in the `getCppContents` function
+
+### Other non-Git Commands ###
+
+The GitHash mechanism can be used more generally than `git`, since you could use
+arbitrary commands to generate and expose arbitrary values. If you do so, you
+may also want to change what is put in the cache so you can avoid recompilation
+when your commands return the same values. To do so, you just have to change the
+format of the cache file as returned by the `genCache` function.
 
 Credits
 -------
