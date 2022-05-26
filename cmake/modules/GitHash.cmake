@@ -99,7 +99,8 @@ function(SetupGitHash)
     add_library(githash ${outputFile})
     add_dependencies(githash CheckGitHash)
 
-    set(GITHASH_LIBRARIES githash CACHE STRING "name of githash library")
+    # Output library name to the other CMakeLists.txt
+    set(GITHASH_LIBRARIES githash CACHE STRING "Name of githash library")
 
     UpdateGitHash()
 endfunction()
