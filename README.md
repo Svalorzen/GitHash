@@ -12,12 +12,12 @@ last compiled one.
 Setup
 -----
 
-To use GitHash in your project, you need to follow these steps:
-- Copy the file `GitHash.cmake` in your project's `cmake/module` folder.
+To use GitHash in your project, you only need to follow these steps:
+- Copy the file `GitHash.cmake` in your project's `cmake/Modules` folder.
 - Copy the file `GitHash.hpp` to your project's include directory.
 - Add the following two lines to your main `CMakeLists.txt` file:
    ```
-   include(${PROJECT_SOURCE_DIR}/cmake/modules/GitHash.cmake)
+   include(${PROJECT_SOURCE_DIR}/cmake/Modules/GitHash.cmake)
    SetupGitHash()
    ```
 - Use these variables in your C++ files:
