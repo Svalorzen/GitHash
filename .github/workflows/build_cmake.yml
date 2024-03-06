@@ -1,0 +1,40 @@
+name: AI-Toolbox
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Do not stop all jobs if a single job fails.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, Windows-2019, macos-11]
+        build-type: ["Release"]
+        cxx: ["g++", "clang++"]
+        gcc: [10]
+        clang: [12]
+
+    steps:
+    - name: Checkout repository.
+      uses: actions/checkout@v4
+
+    - name: Create build folder
+      run: |
+        mkdir ${{ runner.workspace }}/GitHash/exampleProject/build
+
+    - name: Run CMake
+      working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
+      run: |
+        if [ "${{ matrix.cxx }}" = "g++" ];     then export CXX="/usr/bin/g++-10"     CC="/usr/bin/gcc-10"; fi
+        if [ "${{ matrix.cxx }}" = "clang++" ]; then export CXX="/usr/bin/clang++-12" CC="/usr/bin/clang-12"; fi
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+
+    - name: Build
+      working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
+      run: |
+        make -j2 VERBOSE=1
