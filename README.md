@@ -1,6 +1,8 @@
 GITHASH CMAKE MODULE
 ====================
 
+[![GitHash](https://github.com/Svalorzen/GitHash/actions/workflows/build_cmake.yml/badge.svg)](https://github.com/Svalorzen/GitHash/actions/workflows/build_cmake.yml)
+
 This module allows you to obtain the current branch, sha1, short sha1 and dirty
 flag directly within C++. It creates a static library called `GitHash` behind
 the scenes which contains these values as symbols you can use.
