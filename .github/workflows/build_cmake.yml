@@ -38,4 +38,4 @@ jobs:
     - name: Run test
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
-        ctest -V
+        ctest -C Release -V
