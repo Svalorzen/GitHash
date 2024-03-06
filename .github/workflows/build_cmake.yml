@@ -27,13 +27,13 @@ jobs:
     - name: Run CMake
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
-        cmake .. --config ${{ matrix.build-type }}
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
 
 
     - name: Build
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
-        cmake --build .
+        cmake --build . --config ${{ matrix.build-type }} --verbose
 
     - name: Run test
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
