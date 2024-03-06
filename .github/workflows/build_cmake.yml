@@ -38,3 +38,9 @@ jobs:
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
         make -j2 VERBOSE=1
+
+    - name: Run
+      working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
+      run: |
+        ./src/main
+
