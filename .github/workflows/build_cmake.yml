@@ -15,9 +15,6 @@ jobs:
       matrix:
         os: [ubuntu-20.04, Windows-2019, macos-11]
         build-type: ["Release"]
-        cxx: ["g++", "clang++"]
-        gcc: [10]
-        clang: [12]
 
     steps:
     - name: Checkout repository.
@@ -30,17 +27,15 @@ jobs:
     - name: Run CMake
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
-        if [ "${{ matrix.cxx }}" = "g++" ];     then export CXX="/usr/bin/g++-10"     CC="/usr/bin/gcc-10"; fi
-        if [ "${{ matrix.cxx }}" = "clang++" ]; then export CXX="/usr/bin/clang++-12" CC="/usr/bin/clang-12"; fi
         cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+
 
     - name: Build
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
         make -j2 VERBOSE=1
 
-    - name: Run
+    - name: Run test
       working-directory: ${{ runner.workspace }}/GitHash/exampleProject/build
       run: |
-        ./src/main
-
+        ctest -V
