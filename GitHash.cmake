@@ -14,12 +14,14 @@
 # If you change the output file, remember to modify the GitHash.hpp header file
 # in sync with it!
 
+find_package(Git REQUIRED)
+
 # Commands to read each needed variable
 set(variablesToRead "GIT_BRANCH;GIT_SHA1;GIT_SHORTSHA1;GIT_DIRTY")
-set(CMD_GIT_BRANCH      git branch --show-current)
-set(CMD_GIT_SHA1        git log -1 --format=%H)
-set(CMD_GIT_SHORTSHA1   git log -1 --format=%h)
-set(CMD_GIT_DIRTY       git describe --always --dirty) # we post-process this one
+set(CMD_GIT_BRANCH      ${GIT_EXECUTABLE} branch --show-current)
+set(CMD_GIT_SHA1        ${GIT_EXECUTABLE} log -1 --format=%H)
+set(CMD_GIT_SHORTSHA1   ${GIT_EXECUTABLE} log -1 --format=%h)
+set(CMD_GIT_DIRTY       ${GIT_EXECUTABLE} describe --always --dirty) # we post-process this one
 
 # Generator of the .cpp of the githash library
 function(genCppContents outputString)
