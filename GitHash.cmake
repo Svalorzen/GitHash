@@ -83,7 +83,7 @@ if (NOT DEFINED outputDir)
     set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
 endif()
 set(outputFile "${outputDir}/GitHash.cpp")
-set(cacheFile "${outputDir}/cache.txt")
+set(cacheFile "${outputDir}/GitHashCache.txt")
 
 # Reads cache file to a variable
 function(ReadGitSha1Cache sha1)
