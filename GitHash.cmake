@@ -26,16 +26,17 @@ set(CMD_GIT_DIRTY       ${GIT_EXECUTABLE} describe --always --dirty) # we post-p
 # Generator of the .cpp of the githash library
 function(genCppContents outputString)
     set(${outputString}
-        "namespace GitHash {
-           extern const char * const branch;
-           extern const char * const sha1;
-           extern const char * const shortSha1;
-           extern const bool dirty;
-           const char * const branch = \"${GIT_BRANCH}\";
-           const char * const sha1 = \"${GIT_SHA1}\";
-           const char * const shortSha1 = \"${GIT_SHORTSHA1}\";
-           const bool dirty = ${GIT_DIRTY};
-        }" PARENT_SCOPE
+"namespace GitHash {
+    extern const char * const branch;
+    extern const char * const sha1;
+    extern const char * const shortSha1;
+    extern const bool dirty;
+    const char * const branch = \"${GIT_BRANCH}\";
+    const char * const sha1 = \"${GIT_SHA1}\";
+    const char * const shortSha1 = \"${GIT_SHORTSHA1}\";
+    const bool dirty = ${GIT_DIRTY};
+}"
+        PARENT_SCOPE
     )
 endfunction()
 
