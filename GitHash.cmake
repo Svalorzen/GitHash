@@ -62,13 +62,22 @@ get_filename_component(GitHash_AbsoluteOutputDir ${GitHash_OutputDir} ABSOLUTE B
 set(GitHash_CppFile "${GitHash_AbsoluteOutputDir}/${GitHash_CppFilename}")
 set(GitHash_CacheFile "${GitHash_AbsoluteOutputDir}/${GitHash_CacheFilename}")
 
+# Directory where to actually run the Git Commands.
+if (NOT DEFINED GitHash_SourceDir)
+    set(GitHash_SourceDir "${CMAKE_SOURCE_DIR}")
+endif()
+
+message(${CMAKE_SOURCE_DIR})
+
 function(SetupGitHash)
-    # Run this script when building
+    # Run this script when building. Note how we pass all variables we need, since we will not get them automatically
+    # and even the CMake source dir might be wrong (if for example the build folder is outside the original path)
     add_custom_target(CheckGitHash COMMAND ${CMAKE_COMMAND}
         -DRUN_UPDATE_GIT_HASH=1
-        -DGitHash_OutputDir=${GitHash_AbsoluteOutputDir}
-        -DGitHash_CppFilename=${GitHash_CppFilename}
-        -DGitHash_CacheFilename=${GitHash_CacheFilename}
+        -DGitHash_OutputDir="${GitHash_AbsoluteOutputDir}"
+        -DGitHash_CppFilename="${GitHash_CppFilename}"
+        -DGitHash_CacheFilename="${GitHash_CacheFilename}"
+        -DGitHash_SourceDir="${GitHash_SourceDir}"
         -P ${_THIS_MODULE_FILE}
         BYPRODUCTS ${GitHash_CppFile}
     )
@@ -111,7 +120,7 @@ function(UpdateGitHash)
     foreach(c ${variablesToRead})
         execute_process(
             COMMAND ${CMD_${c}}
-            WORKING_DIRECTORY "${GitHash_AbsoluteOutputDir}"
+            WORKING_DIRECTORY "${GitHash_SourceDir}"
             OUTPUT_VARIABLE ${c}
             OUTPUT_STRIP_TRAILING_WHITESPACE)
     endforeach(c)
