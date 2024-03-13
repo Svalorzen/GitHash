@@ -58,11 +58,11 @@ function(SetupGitHash)
         -DRUN_UPDATE_GIT_HASH=1
         -DoutputDir=${outputDir}
         -P ${_THIS_MODULE_FILE}
-        BYPRODUCTS ${outputFile}
+        BYPRODUCTS ${outputFilePath}
     )
 
     # Create library for user
-    add_library(githash ${outputFile})
+    add_library(githash ${outputFilePath})
     add_dependencies(githash CheckGitHash)
 
     # Output library name to the other CMakeLists.txt
@@ -82,7 +82,7 @@ set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}")
 if (NOT DEFINED outputDir)
     set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
 endif()
-set(outputFile "${outputDir}/GitHash.cpp")
+set(outputFilePath "${outputDir}/GitHash.cpp")
 set(cacheFile "${outputDir}/GitHashCache.txt")
 
 # Reads cache file to a variable
@@ -129,7 +129,7 @@ function(UpdateGitHash)
 
     # Only update the GitHash.cpp if the hash has changed. This will
     # prevent us from rebuilding the project more than we need to.
-    if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${outputFile})
+    if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${outputFilePath})
         # Set the cache so we can skip rebuilding if nothing changed.
         file(WRITE ${cacheFile} ${newSha1Cache})
 
@@ -137,7 +137,7 @@ function(UpdateGitHash)
         genCppContents(outputString)
 
         # Finally output our new library cpp file.
-        file(WRITE ${outputFile} "${outputString}")
+        file(WRITE ${outputFilePath} "${outputString}")
         message(STATUS "Compiling branch ${GIT_BRANCH}, commit ${GIT_SHA1}, dirty is ${GIT_DIRTY}")
     endif()
 endfunction()
