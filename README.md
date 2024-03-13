@@ -39,6 +39,18 @@ the script to specify your ideal output directory.
 Customization
 -------------
 
+### Output Files Names and Path ###
+
+If for any reason you might want to have the output files have different names
+and/or reside in a different folder than the default ones, you can configure
+them via the following CMake variables: `GitHash_OutputDir`,
+`GitHash_CppFilename` and `GitHash_CacheFilename`. For example, you might want
+to run:
+
+```
+cmake -DGitHash_OutputDir=MyCustomFolder
+```
+
 ### Additional Fields ###
 
 It is possible to add additional fields to read (for example, to read tags). For
