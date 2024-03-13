@@ -57,6 +57,7 @@ function(SetupGitHash)
     add_custom_target(CheckGitHash COMMAND ${CMAKE_COMMAND}
         -DRUN_UPDATE_GIT_HASH=1
         -DoutputDir=${outputDir}
+        -DoutputFileName=${outputFileName}
         -P ${_THIS_MODULE_FILE}
         BYPRODUCTS ${outputFilePath}
     )
@@ -82,7 +83,10 @@ set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}")
 if (NOT DEFINED outputDir)
     set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
 endif()
-set(outputFilePath "${outputDir}/GitHash.cpp")
+if (NOT DEFINED outputFileName)
+    set(outputFileName GitHash.cpp)
+endif()
+set(outputFilePath "${outputDir}/${outputFileName}")
 set(cacheFile "${outputDir}/GitHashCache.txt")
 
 # Reads cache file to a variable
@@ -127,7 +131,7 @@ function(UpdateGitHash)
         set(oldSha1Cache "none")
     endif()
 
-    # Only update the GitHash.cpp if the hash has changed. This will
+    # Only update the output file if the hash has changed. This will
     # prevent us from rebuilding the project more than we need to.
     if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${outputFilePath})
         # Set the cache so we can skip rebuilding if nothing changed.
