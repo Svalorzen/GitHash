@@ -46,28 +46,39 @@ function(genCache outputString)
 endfunction()
 
 ###################################
-### END OF CUSTOMIZATION POINTS ###
+###### CONFIGURATION POINTS #######
 ###################################
+
+set(GitHash_OutputDir     "${PROJECT_BINARY_DIR}/GitHash" CACHE STRING "default directory for the output files")
+set(GitHash_CppFilename   "GitHash.cpp"                   CACHE STRING "default name of the output cpp file")
+set(GitHash_CacheFilename "GitHashCache.txt"              CACHE STRING "default name of the output cache file")
 
 ##########################################################
 ### You MUST call SetupGitHash in your CMakeLists.txt! ###
 ##########################################################
 
+# Set utility names for full paths outputs
+get_filename_component(GitHash_AbsoluteOutputDir ${GitHash_OutputDir} ABSOLUTE BASE_DIR "${PROJECT_BINARY_DIR}")
+set(GitHash_CppFile "${GitHash_AbsoluteOutputDir}/${GitHash_CppFilename}")
+set(GitHash_CacheFile "${GitHash_AbsoluteOutputDir}/${GitHash_CacheFilename}")
+
 function(SetupGitHash)
     # Run this script when building
     add_custom_target(CheckGitHash COMMAND ${CMAKE_COMMAND}
         -DRUN_UPDATE_GIT_HASH=1
-        -DoutputDir=${outputDir}
+        -DGitHash_OutputDir=${GitHash_AbsoluteOutputDir}
+        -DGitHash_CppFilename=${GitHash_CppFilename}
+        -DGitHash_CacheFilename=${GitHash_CacheFilename}
         -P ${_THIS_MODULE_FILE}
-        BYPRODUCTS ${outputFile}
+        BYPRODUCTS ${GitHash_CppFile}
     )
 
     # Create library for user
-    add_library(githash ${outputFile})
+    add_library(githash ${GitHash_CppFile})
     add_dependencies(githash CheckGitHash)
 
     # Output library name to the other CMakeLists.txt
-    set(GITHASH_LIBRARIES githash CACHE STRING "Name of githash library")
+    set(GITHASH_LIBRARIES githash CACHE STRING "Name of githash library" FORCE)
 
     UpdateGitHash()
 endfunction()
@@ -79,17 +90,10 @@ endfunction()
 # Needed for setup for older CMake versions (reads this file's path).
 set(_THIS_MODULE_FILE "${CMAKE_CURRENT_LIST_FILE}")
 
-# When calling again, we can't get BINARY_DIR directly, so we get it as input.
-if (NOT DEFINED outputDir)
-    set(outputDir "${PROJECT_BINARY_DIR}/GitHash")
-endif()
-set(outputFile "${outputDir}/GitHash.cpp")
-set(cacheFile "${outputDir}/GitHashCache.txt")
-
 # Reads cache file to a variable
 function(ReadGitSha1Cache sha1)
-    if (EXISTS ${cacheFile})
-        file(STRINGS ${cacheFile} CONTENT)
+    if (EXISTS ${GitHash_CacheFile})
+        file(STRINGS ${GitHash_CacheFile} CONTENT)
         LIST(GET CONTENT 0 tmp)
 
         set(${sha1} ${tmp} PARENT_SCOPE)
@@ -99,15 +103,15 @@ endfunction()
 # Function called during `make`
 function(UpdateGitHash)
     # Make sure our working folder exists.
-    if (NOT EXISTS ${outputDir})
-        file(MAKE_DIRECTORY ${outputDir})
+    if (NOT EXISTS ${GitHash_AbsoluteOutputDir})
+        file(MAKE_DIRECTORY ${GitHash_AbsoluteOutputDir})
     endif()
 
     # Automatically set all variables.
     foreach(c ${variablesToRead})
         execute_process(
             COMMAND ${CMD_${c}}
-            WORKING_DIRECTORY "${outputDir}"
+            WORKING_DIRECTORY "${GitHash_AbsoluteOutputDir}"
             OUTPUT_VARIABLE ${c}
             OUTPUT_STRIP_TRAILING_WHITESPACE)
     endforeach(c)
@@ -130,15 +134,15 @@ function(UpdateGitHash)
 
     # Only update the GitHash.cpp if the hash has changed. This will
     # prevent us from rebuilding the project more than we need to.
-    if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${outputFile})
+    if (NOT ${newSha1Cache} STREQUAL ${oldSha1Cache} OR NOT EXISTS ${GitHash_CppFile})
         # Set the cache so we can skip rebuilding if nothing changed.
-        file(WRITE ${cacheFile} ${newSha1Cache})
+        file(WRITE ${GitHash_CacheFile} ${newSha1Cache})
 
         # Get the CPP file contents with all variables correctly embedded.
         genCppContents(outputString)
 
         # Finally output our new library cpp file.
-        file(WRITE ${outputFile} "${outputString}")
+        file(WRITE ${GitHash_CppFile} "${outputString}")
         message(STATUS "Compiling branch ${GIT_BRANCH}, commit ${GIT_SHA1}, dirty is ${GIT_DIRTY}")
     endif()
 endfunction()
