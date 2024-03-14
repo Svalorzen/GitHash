@@ -67,8 +67,6 @@ if (NOT DEFINED GitHash_SourceDir)
     set(GitHash_SourceDir "${CMAKE_SOURCE_DIR}")
 endif()
 
-message(${CMAKE_SOURCE_DIR})
-
 function(SetupGitHash)
     # Run this script when building. Note how we pass all variables we need, since we will not get them automatically
     # and even the CMake source dir might be wrong (if for example the build folder is outside the original path)
