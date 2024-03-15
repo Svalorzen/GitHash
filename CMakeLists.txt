@@ -1,11 +1,4 @@
-### HOW TO USE ###
-#
-# To use GitHash, you need to add this file to your project. `include(...)`
-# this file from your main CMakeLists.txt file, and run the `SetupGitHash()`
-# function.
-#
-# You then just need to link your targets against ${GITHASH_LIBRARIES}, and add
-# the `GitHash.hpp` file to your C++ project.
+cmake_minimum_required(VERSION 3.25.3)
 
 ###################################
 ###### CUSTOMIZATION POINTS #######
@@ -67,8 +60,6 @@ if (NOT DEFINED GitHash_SourceDir)
     set(GitHash_SourceDir "${CMAKE_SOURCE_DIR}")
 endif()
 
-message(${CMAKE_SOURCE_DIR})
-
 function(SetupGitHash)
     # Run this script when building. Note how we pass all variables we need, since we will not get them automatically
     # and even the CMake source dir might be wrong (if for example the build folder is outside the original path)
@@ -84,6 +75,7 @@ function(SetupGitHash)
 
     # Create library for user
     add_library(githash ${GitHash_CppFile})
+    target_include_directories(githash PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
     add_dependencies(githash CheckGitHash)
 
     # Output library name to the other CMakeLists.txt
@@ -159,4 +151,6 @@ endfunction()
 # This is used to run this function from an external cmake process.
 if (RUN_UPDATE_GIT_HASH)
     UpdateGitHash()
+else()
+    SetupGitHash()
 endif()
