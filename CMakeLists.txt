@@ -76,6 +76,7 @@ function(SetupGitHash)
     # Create library for user
     add_library(githash ${GitHash_CppFile})
     target_include_directories(githash PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
+    target_sources(githash PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/GitHash.hpp")
     add_dependencies(githash CheckGitHash)
 
     # Output library name to the other CMakeLists.txt
