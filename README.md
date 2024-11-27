@@ -20,6 +20,10 @@ To use GitHash in your project, you need to:
   ```
   add_subdirectory(<GitHash_Dir_Path>)`
   ```
+- Add the following include where you need it:
+  ```
+  #include "GitHash.hpp"
+  ```
 - Use these variables in your C++ files:
   ```
   GitHash::branch;     // C-string
