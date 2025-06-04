@@ -13,7 +13,7 @@ jobs:
       # Do not stop all jobs if a single job fails.
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, Windows-2019, macos-11]
+        os: [ubuntu-24.04, Windows-2025, macos-15]
         build-type: ["Debug", "Release"]
 
     steps:
