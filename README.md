@@ -37,20 +37,15 @@ To use GitHash in your project, you need to:
   target_link_libraries(your_project "${GITHASH_LIBRARIES}")
   ```
 
-Note that currently the `GitHash` library is outputted in a subfolder of your
-`PROJECT_BINARY_DIR`. If this is not desired you will have to manually modify
-the script to specify your ideal output directory.
-
 Customization
 -------------
 
 ### Output Files Names and Path ###
 
-If for any reason you might want to have the output files have different names
-and/or reside in a different folder than the default ones, you can configure
-them via the following CMake variables: `GitHash_OutputDir`,
-`GitHash_CppFilename` and `GitHash_CacheFilename`. For example, you might want
-to run:
+If for any reason you want the output files to have different names and/or
+reside in a different folder than the default, you can configure GitHash via the
+following CMake variables: `GitHash_OutputDir`, `GitHash_CppFilename` and
+`GitHash_CacheFilename`. For example, you might want to run:
 
 ```
 cmake -DGitHash_OutputDir=MyCustomFolder
@@ -62,20 +57,21 @@ It is possible to add additional fields to read (for example, to read tags). For
 each new field, you need to:
 - Modify the `GitHash.hpp` header file to expose the new field you want.
 - Add the new field, and the appropriate `git` command to obtain its value, in
-  the `GitHash.cmake` script. All modifications can be done briefly at the top
+  the `CMakeLists.txt` script. All modifications can be done briefly at the top
   of the CMake script:
   - Add a new CMake variable to `variablesToRead`
   - Add a new `CMD_` variable containing the appropriate command to run
   - Add a new `extern` field (both declaration and definition) inside the string
-    in the `getCppContents` function
+    in the `genCppContents` function
 
 ### Other non-Git Commands ###
 
 The GitHash mechanism can be used more generally than `git`, since you could use
 arbitrary commands to generate and expose arbitrary values. If you do so, you
-may also want to change what is put in the cache so you can avoid recompilation
-when your commands return the same values. To do so, you just have to change the
-format of the cache file as returned by the `genCache` function.
+may also want to change what is put in the cache so you can trigger
+recompilation when your commands return different values. To do so, you just
+have to change the format of the cache file as returned by the `genCache`
+function.
 
 Credits
 -------
